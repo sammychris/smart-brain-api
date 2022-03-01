@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  # Backend
+  smart-brain-api:
+    container_name: backend
+    # image: node:14.18.2
+    build: ./
+    command: npm start
+    working_dir: "/ng/src/smart-brain-api"
+    environment:
+      DATABASE_URI: postgres://sally:secret@postgres:5432/smart-brain-docker
+    links:
+      - postgres
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/ng/src/smart-brain-api
+
+  # Postgres
+  postgres:
+    container_name: postgres
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - DB_USER=sally
+      - DB_PASSWORD=secret
+      - DB_DATABASE=smart-brain-docker
+      - DB_HOST=postgres
+      - PGDATA=/var/lib/postgresql/data
+    restart: unless-stopped
+    build: ./postgres
+    # # networks:
+    #   - backend
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
